@@ -57,21 +57,19 @@ app.post("/api/survey", async (req, res) => {
       .json({ status: "error", message: "Could not save response" });
   }
 
+  res.json({ status: 'success' })
+
   // Push the same data into the Google Sheet, if configured.
   if (process.env.SHEET_WEBHOOK_URL) {
-    try {
-      await fetch(process.env.SHEET_WEBHOOK_URL, {
+    fetch(process.env.SHEET_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(data),
-      });
-    } catch (err) {
-      console.error(
-        "Response was saved, but writing to the Sheet failed:",
-        err,
-      );
+      })
+      .catch((err) => {
+      console.error('Response was saved, but writing to the Sheet failed:', err)
+    })
     }
-  }
 
   // Optional email notification, only runs if SMTP is configured.
   if (emailEnabled) {
